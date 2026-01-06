@@ -12,10 +12,11 @@
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "-I", "C:/msys64/ucrt64/include",
                 "-L", "C:/msys64/ucrt64/lib",
-                "-lsfml-graphics",
-                "-lsfml-window",
-                "-lsfml-system",
-                "-lsfml-audio"
+                 "-lsfml-graphics",
+                 "-lsfml-window",
+                 "-lsfml-system"
+
+                
             ],
             "options": {
                 "cwd": "C:/msys64/ucrt64/bin"
