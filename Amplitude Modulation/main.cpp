@@ -12,11 +12,11 @@ class Signals{
 
 public:
 
-float amplitude=0;      //various variables
-std::string functionType;
-float omega=0;
-float pi=3.14159265f;
-float sampleFrequency;
+float amplitude[3]={0,0,0};      //various variables
+std::string functionType[3];   // had to make these variable vectors to
+float omega[3]={0,0,0};    //to cater for the multi-tone signal while
+float pi=3.14159265f;     // using the same function for both other than writing a new one
+ int NTones;//to keep track of the number of tones we have
 
 
 void inputSignal(std::string signal){
@@ -25,24 +25,71 @@ void inputSignal(std::string signal){
 std::string inputTheSignal;
 std::getline(std::cin,inputTheSignal);  //user enters the signal here
 
+points.clear();
+
+//after some intense digging have to modify this same concept to take multi-tone 
+//modulating signals as well. based on the same principle
+
+if(signal=="modulatingSignal"){
+
+    std::stringstream hugeStream(inputTheSignal); //this function will take care of the whole line 
+// it'll split it into tones and then we can move ahead and split it again to get our values
+
+std::string individualTones;  // the splited function will be kept in segments in this
+
+
+int nTones=0;
+while(std::getline(hugeStream,individualTones, '+') && nTones<3){
+
+    std::stringstream toneStream(individualTones);
+
+    if(!(toneStream>>amplitude[nTones] >> functionType[nTones]>>omega[nTones])){
+        std::cerr<<"Invalid forma, make spaces in between\n";
+    }
+    
+    
+
+
+
+
+nTones++;
+}
+ NTones=nTones;
+
+// display the full signal before processing
+std::cout<<"\nYou entered......\n";
+for(int i=0;i<NTones;i++){
+    std::cout<<amplitude[i]<<" "<<functionType[i]<<" "<<omega[i]<<" + ";
+    
+}
+
+
+}
+
+//this is where the program will continue if it's a carrier signal
+else{  // this is the best approach to make sure that that the data is not overwritten immediately after the modulating signal
 std::stringstream ss(inputTheSignal);  //so this is where the the various
-if(!(ss>>amplitude>>functionType>>omega)){   // Erorr  //variables will be extracted from the input using the stringstream function
+if(!(ss >> amplitude[0]>>functionType[0]>>omega[0])){   // Erorr  //variables will be extracted from the input using the stringstream function
     std::cerr<<"Invalid input\n";        
     
+}
+NTones=1;  // to draw only one tone
 }
 
 for(int i=0;i<windowWidth;i++){
     float t=(float)i/sampleFrequency;   //the basic math
-    float y=0;                          //it's advisable to do this outside that while loop
-
-    if(functionType == "cos"){
-        y=amplitude* std::cos(omega*t);
+    float yTotals=0;                      //this will add all the functions, even if it's a single tone
+// the thing is, everything's been initialed to zero. so unless it's a multi-tone that it'll add 
+                                 //it's fine actually
+for(int j=0;j<NTones;j++){
+    if(functionType[j] == "cos"){  
+        yTotals+=amplitude[j]* std::cos(omega[j]*t);
     }
-    else if(functionType=="sin"){
-        y=amplitude* std::sin(omega*t);
+    else if(functionType[j] == "sin"){
+        yTotals+=amplitude[j]* std::sin(omega[j]*t);
     }
-
-    points.push_back(sf::Vector2f((float)i,(windowHeight/2.f)-y));    //a vector
+}
+    points.push_back(sf::Vector2f((float)i,(windowHeight/2.f)-yTotals));    //a vector
 
 }
 
@@ -51,16 +98,16 @@ for(int i=0;i<windowWidth;i++){
 
 const unsigned int windowWidth=800;
 const unsigned int windowHeight=400;             //seting my window size already
-
+const float sampleFrequency=5000000.f;
 
 std::vector<sf::Vector2f> points;      //the Vector2f function actually repressent a point on the screen which will be ideal to plot (x,y)
               
 
 void displayWaveSignal(){
-    
-    float frequency=omega/ (2*pi);
+    //holding on calculating the frequency a bit frequency needs to be calculated for each band
+    //float frequency=omega/ (2*pi);
 sf::RenderWindow window(sf::VideoMode(windowWidth,windowHeight)," Signal");  //this function will basically create a window where the program will run
-std::cout<<"The Frequency is: "<<frequency<<std::endl;
+//std::cout<<"The Frequency is: "<<frequency<<std::endl;
 sf::VertexArray wave(sf::LineStrip,points.size());   //the logic behind this is to point "point" towards wave which will link it to 
 for(int i=0; i<points.size();i++){                  // look as if it was a joined line
     wave[i].position=points[i];
@@ -125,11 +172,11 @@ int main(){
 
     Signals carrierSignal,modulatingSignal,modulatedSignal;
 
-    carrierSignal.inputSignal("carrier");
+    carrierSignal.inputSignal("carrierSignal");
     //
     carrierSignal.displayWaveSignal();
 
-    modulatingSignal.inputSignal("Modulating");
+    modulatingSignal.inputSignal("modulatingSignal");
     modulatingSignal.displayWaveSignal();
 
 
@@ -148,7 +195,7 @@ for(int i=0;i<modulatedSignal.windowWidth;i++){
     
 
     float v2= a*ct + 2*b*ct*mt;
-  modulatedPoints.push_back(sf::Vector2f((float)i,(modulatingSignal.windowHeight/2.f)-v2));
+  modulatedPoints.push_back(sf::Vector2f((float)i,200.f-v2));
 }
 
 
@@ -165,7 +212,10 @@ for(int i=0;i<modulatedPoints.size();i++){
 
 sf::RenderWindow window(sf::VideoMode(modulatedSignal.windowWidth,modulatedSignal.windowHeight),"Modulated Signal");
 
+//let's see if simple modulating index will work
 
+//float modulatingIndex = modulatingSignal.amplitude / carrierSignal.amplitude;
+//std::cout<<"The modulating index is: "<<modulatingIndex;
 while(window.isOpen()){
  sf::Event event;
 
