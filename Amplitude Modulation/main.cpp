@@ -25,7 +25,7 @@ void inputSignal(std::string signal){
 std::string inputTheSignal;
 std::getline(std::cin,inputTheSignal);  //user enters the signal here
 
-points.clear();
+points.clear(); //this ensures previous data is cleared and not drawn on top of it
 
 //after some intense digging have to modify this same concept to take multi-tone 
 //modulating signals as well. based on the same principle
