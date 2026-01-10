@@ -25,7 +25,7 @@ void inputSignal(std::string signal){
 std::string inputTheSignal;
 std::getline(std::cin,inputTheSignal);  //user enters the signal here
 
-points.clear();
+points.clear(); //this ensures previous data is cleared and not drawn on top of it
 
 //after some intense digging have to modify this same concept to take multi-tone 
 //modulating signals as well. based on the same principle
@@ -115,13 +115,27 @@ for(int i=0; i<points.size();i++){                  // look as if it was a joine
   
 }
 
+sf::View view=window.getDefaultView();
+view.setCenter((windowWidth/2.f),(windowHeight/2));
+window.setView(view);
+
 while(window.isOpen()){                        //while this window is opened, the functions below will start to execute
                                                //unless it's closed from the inner while loop  
    sf::Event event;
     while(window.pollEvent(event)){
         if(event.type==sf::Event::Closed){
-            window.close();
+            window.close();           
         }
+        if(event.type==sf::Event::KeyPressed){
+                if(event.key.code==sf::Keyboard::Up) view.zoom(0.9f);
+                if(event.key.code==sf::Keyboard::Down) view.zoom(1.1f);
+
+                if(event.key.code==sf::Keyboard::W) view.move(0,-10);
+                if(event.key.code==sf::Keyboard::S) view.move(0,10);
+                if(event.key.code==sf::Keyboard::A) view.move(-10,0);
+                if(event.key.code==sf::Keyboard::D) view.move(10,0);
+
+            } 
 
        
      
@@ -130,6 +144,7 @@ while(window.isOpen()){                        //while this window is opened, th
 
 window.clear(sf::Color::Red);
 window.draw(wave);
+window.setView(view);
 window.display();
 }
 }
@@ -186,7 +201,7 @@ int main(){
 std::cout<<"\n The modulated signal will be displayed using the square law modulator\n";
 
 float a=1.0f;
-float b=0.5f;
+float b=0.1f;
 
 std::vector<sf::Vector2f> modulatedPoints;
 for(int i=0;i<modulatedSignal.windowWidth;i++){
@@ -214,6 +229,9 @@ sf::RenderWindow window(sf::VideoMode(modulatedSignal.windowWidth,modulatedSigna
 
 //let's see if simple modulating index will work
 
+sf::View modulatedView=window.getDefaultView();
+modulatedView.setCenter((modulatedSignal.windowWidth/2.f),(modulatedSignal.windowHeight/2));
+
 //float modulatingIndex = modulatingSignal.amplitude / carrierSignal.amplitude;
 //std::cout<<"The modulating index is: "<<modulatingIndex;
 while(window.isOpen()){
@@ -221,13 +239,18 @@ while(window.isOpen()){
 
     while(window.pollEvent(event)){
         if(event.type==sf::Event::Closed){
-            window.close();
+            window.close();         
         }
+         if(event.type==sf::Event::KeyPressed){
+                if(event.key.code==sf::Keyboard::Up) modulatedView.zoom(0.9f);
+                if(event.key.code==sf::Keyboard::Down) modulatedView.zoom(1.1f);
+            }
     }
 
   window.clear(sf::Color::Black);
 
   window.draw(ModulatedWave);
+  window.setView(modulatedView);
   window.display();
 
 
