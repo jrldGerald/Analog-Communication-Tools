@@ -7,6 +7,91 @@
 
 
 
+
+
+
+class claculationsOnly{
+
+    private:
+    float pi=3.14159265f;
+    std::string individualTones;
+    int numberOfTones=0;
+
+    public:
+
+
+
+// i want to use just a variable for all the tones, so i am creating a nested class
+class Tone{
+    public:
+    float amplitude;
+    float omega;
+    std::string typeOfFunction;
+};
+
+
+Tone firstTone, secondTone, thirdTone;
+
+
+
+    void getInput(){
+
+        std::cout<<"Enter the signal to process: (A 'cos||sin' w) + \n";
+        std::string signal;
+        std::getline(std::cin, signal);
+
+        //this is the whole equation to be handled
+        std::stringstream hugestream(signal);
+ //here hugeStream will slice the signal into individual tones using '+' as the barrier
+        while(std::getline(hugestream, individualTones, '+' )&& numberOfTones<3){
+
+            std::stringstream toneStream(individualTones);
+                     //and here, it is set, the tones each has their own signal now
+          /**  if(numberOfTones==0){
+              toneStream>>firstTone.amplitude>>firstTone.typeOfFunction>>firstTone.omega;
+            }
+            else if(numberOfTones==1){
+                toneStream>>secondTone.amplitude>>secondTone.typeOfFunction>>secondTone.omega;
+            }
+            else if(numberOfTones==2){
+                toneStream>>thirdTone.amplitude>>thirdTone.typeOfFunction>>thirdTone.omega;
+            }
+ 
+*/
+
+
+                     numberOfTones++;
+        }
+
+        
+
+
+        //wants to display the whole equation if it'll work out
+        std::cout<<"gotcha! you entered:\n";
+        if(numberOfTones>=1) std::cout<<firstTone.amplitude<<"*"<<firstTone.typeOfFunction<<"("<<firstTone.omega<<"t) + ";
+        if(numberOfTones>=2) std::cout<<secondTone.amplitude<<"*"<<secondTone.typeOfFunction<<"("<<secondTone.omega<<"t) + ";
+        if(numberOfTones>=3) std::cout<<thirdTone.amplitude<<"*"<<thirdTone.typeOfFunction<<"("<<thirdTone.omega<<"t)\n";
+    
+    
+    }   
+     
+
+        void parametersCalculation(){
+
+        }
+
+    
+    
+    
+    
+    };
+
+
+
+
+
+
+
 class Signals{
 
 
