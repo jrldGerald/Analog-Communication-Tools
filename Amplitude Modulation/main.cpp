@@ -10,81 +10,9 @@
 
 
 
-class claculationsOnly{
-
-    private:
-    float pi=3.14159265f;
-    std::string individualTones;
-    int numberOfTones=0;
-
-    public:
 
 
 
-// i want to use just a variable for all the tones, so i am creating a nested class
-class Tone{
-    public:
-    float amplitude;
-    float omega;
-    std::string typeOfFunction;
-};
-
-
-Tone firstTone, secondTone, thirdTone;
-
-
-
-    void getInput(){
-
-        std::cout<<"Enter the signal to process: (A 'cos||sin' w) + \n";
-        std::string signal;
-        std::getline(std::cin, signal);
-
-        //this is the whole equation to be handled
-        std::stringstream hugestream(signal);
- //here hugeStream will slice the signal into individual tones using '+' as the barrier
-        while(std::getline(hugestream, individualTones, '+' )&& numberOfTones<3){
-
-            std::stringstream toneStream(individualTones);
-                     //and here, it is set, the tones each has their own signal now
-          /**  if(numberOfTones==0){
-              toneStream>>firstTone.amplitude>>firstTone.typeOfFunction>>firstTone.omega;
-            }
-            else if(numberOfTones==1){
-                toneStream>>secondTone.amplitude>>secondTone.typeOfFunction>>secondTone.omega;
-            }
-            else if(numberOfTones==2){
-                toneStream>>thirdTone.amplitude>>thirdTone.typeOfFunction>>thirdTone.omega;
-            }
- 
-*/
-
-
-                     numberOfTones++;
-        }
-
-        
-
-
-        //wants to display the whole equation if it'll work out
-        std::cout<<"gotcha! you entered:\n";
-        if(numberOfTones>=1) std::cout<<firstTone.amplitude<<"*"<<firstTone.typeOfFunction<<"("<<firstTone.omega<<"t) + ";
-        if(numberOfTones>=2) std::cout<<secondTone.amplitude<<"*"<<secondTone.typeOfFunction<<"("<<secondTone.omega<<"t) + ";
-        if(numberOfTones>=3) std::cout<<thirdTone.amplitude<<"*"<<thirdTone.typeOfFunction<<"("<<thirdTone.omega<<"t)\n";
-    
-    
-    }   
-     
-
-        void parametersCalculation(){
-
-        }
-
-    
-    
-    
-    
-    };
 
 
 
@@ -245,6 +173,142 @@ window.display();
 
 
 
+class Calculation{
+
+// i want to find a new approach for this to work out using my own basic logic and understanding
+
+public:
+
+// want to use the same variable name for all my functions so a class or a struct will do this perfectly
+struct Tone{
+    float amplitude=0.0f;
+    float omega=0.0f;
+    std::string typeOfFunction;
+
+};
+
+// made the first object but didn't make secondTone an object because i am still going to extract again
+Tone firstTone,secondTone;
+// so the firstTone will represent the carrier signal while the secondTone will represent the modulating signal
+// i think in short form, kinda make sense
+void getModulatedSignal(){
+
+    std::string signal;
+    std::cout<<"Enter the modulated signal to proceed: Format: A sin Wct + u sin Wmt * sin Wct . Of course! the 't' isn't important here\n";
+    std::getline(std::cin,signal);
+
+    //now is the time to first split in segments and later split again
+
+    std::stringstream hugeStream(signal);
+
+    std::string individualTones;
+
+    int i=0;
+std::string secondToneAsAString;
+
+    while(std::getline(hugeStream, individualTones, '+') && i<2){
+
+        std::stringstream toneStream(individualTones);
+
+        if(i==0){
+            toneStream>>firstTone.amplitude>>firstTone.typeOfFunction>>firstTone.omega;
+        }
+
+        else if(i==1){
+            secondToneAsAString=individualTones;  // i have no idea but i have an idea of what am doing , huh?
+        }
+
+        i++;
+    }
+
+    //now, i want to use the same logic to geteverything in here
+    std::string sideBand;
+
+    std::stringstream hugeStream2(secondToneAsAString);
+    int j=0;  // it's just like repeating the same logic over and over 
+    // seems tedious and unproffesional but , the logic is fine and easier to implement
+
+    while(std::getline(hugeStream2, sideBand, '*') && j<2){
+
+        std::stringstream toneStream2(sideBand);
+               //this will handle the first part of the sideband, the amplitude in here will represent the modulating index
+        if(j==0){
+            toneStream2>>secondTone.amplitude>>secondTone.typeOfFunction>>secondTone.omega;
+        }
+
+        // looking at the formula this is not relevant since we'll need what's only above
+        // so i don't know yet if j==1 will cause a problem or not
+        //it's set!!!!
+
+        // okey dokey, after consulting gemini, it'll be best if i still keep the j==1 as a junk and verify if it matches the carrier
+        if(j==1){
+            std::string checkCarrier; float notUseful;
+            toneStream2>>checkCarrier>>notUseful; // just to make sure it matches the carrier signal
+            if(checkCarrier!=firstTone.typeOfFunction){
+                std::cerr<<"The carrier signal in the sideband doesn't match the initial carrier signal\n";
+                if(notUseful!=firstTone.omega){
+                    std::cerr<<"The omega of the carrier signal in the sideband doesn't match the initial carrier signal\n";
+            }
+        }
+        }
+
+        j++;
+    }
+
+
+
+
+}
+
+
+
+
+
+
+
+void display(){
+
+    std::cout<<"\n For better results, the signal you entered is: \n";
+    std::cout<<firstTone.amplitude<<"*"<<firstTone.typeOfFunction<<"("<<firstTone.omega<<"t) + ";
+    std::cout<<secondTone.amplitude<<"*"<<secondTone.typeOfFunction<<"("<<secondTone.omega<<"t) * "<<firstTone.typeOfFunction<<"("<<firstTone.omega<<"t))\n";
+}
+
+
+//now to calculate the important parameters
+void calculatedParameters(){
+    float modulatingIndex=secondTone.amplitude;
+    float carrierFrequency=firstTone.omega/(2*3.14159265f);
+    float modulatingFrequency=secondTone.omega/(2*3.14159265f);
+    float USB=carrierFrequency + modulatingFrequency;
+    float LSB=carrierFrequency - modulatingFrequency;
+    float carrierPower= (firstTone.amplitude * firstTone.amplitude) /2.f;
+    float sideBandPower= (carrierPower/4 )* (modulatingIndex * modulatingIndex);
+    float totalPower= carrierPower + sideBandPower;
+    float efficiency= (sideBandPower / totalPower) *100.f;
+    
+    std::cout<<"\n The calculated parameters are as follows:\n";
+    std::cout<<"Modulating Index: "<<modulatingIndex<<"\n";
+    std::cout<<"Carrier Frequency: "<<carrierFrequency<<" Hz\n";
+    std::cout<<"Modulating Frequency: "<<modulatingFrequency<<" Hz\n";
+    std::cout<<"Upper Side Band Frequency: "<<USB<<" Hz\n";
+    std::cout<<"Lower Side Band Frequency: "<<LSB<<" Hz\n";
+    std::cout<<"Carrier Power: "<<carrierPower<<" W\n"; 
+    std::cout<<"Side Band Power: "<<sideBandPower<<" W\n";
+    std::cout<<"Total Power: "<<totalPower<<" W\n";
+    std::cout<<"Efficiency: "<<efficiency<<" %\n";
+
+
+    std::cin.clear();
+    std::cin.get();
+
+}
+
+
+
+
+
+
+};
 
 
 
@@ -270,6 +334,16 @@ window.display();
 int main(){
 
 
+std::cout<<"What do you wanna do?,\n";
+std::cout<<"1. Visualize a carrier and a modulating signal and their modulated signal\n";
+std::cout<<"2. Calculate the parameters of an AM signal of the format: A sin Wct + u sin Wmt * sin Wct\n";
+int choice;
+std::cin>>choice;
+std::cin.ignore();
+
+
+if(choice==1){
+    
     Signals carrierSignal,modulatingSignal,modulatedSignal;
 
     carrierSignal.inputSignal("carrierSignal");
@@ -345,6 +419,32 @@ while(window.isOpen()){
 
 
 }
+
+
+
+
+}
+
+
+else if(choice==2){
+    Calculation calculation;
+    calculation.getModulatedSignal();
+    calculation.display();
+    calculation.calculatedParameters();
+
+}
+
+else{
+    std::cerr<<"Invalid choice\n";
+    std::cout<<"Exiting program...\n";
+    
+    std::cin.get();
+
+    
+}
+
+
+
 
 
 
